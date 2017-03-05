@@ -285,20 +285,22 @@ for foo,active in ipairs({true, false}) do
 
 			-- check for power
 			if  active 
-				-- wait for one cycle to let technic update EI_input
+				-- wait for one cycle to let technic update EU_input
 				and meta:get_int("sauna:waitforfirsttechniccycle") ==0
-				-- throw dice so all saunas in the net won't shut down at once
-				and math.random(4) == 1 
 				and meta:get_int("MV_EU_input") < meta:get_int("MV_EU_demand")
 			then
 				meta:set_int("sauna:on", 0)
 				meta:set_int("MV_EU_demand",  0 )
+				-- not optimal, but otherwise you'd get a hot stove for free
+				meta:set_int("sauna:temp",  ambient_temperature )
  				minetest.swap_node(pos, {name = "sauna:stove_electric", 
 										 param2=node.param2})
 			end
 
 			-- increase stove temperature
-			if active then
+			if active 
+				and meta:get_int("sauna:waitforfirsttechniccycle") == 0
+			then
 				meta:set_float("sauna:temp",  0.8 * meta:get_float("sauna:temp")
 											+ 0.2 * 600 ) -- 600°C ≃ red hot
 			end
@@ -317,6 +319,7 @@ for foo,active in ipairs({true, false}) do
 technic.register_machine("MV", "sauna:stove_electric"..(active and "_active" or ""), technic.receiver)
 end
 
+if minetest.get_modpath("homedecor") then
 minetest.register_craft({
 	output = 'sauna:stove_electric',
 	recipe = {
@@ -325,6 +328,7 @@ minetest.register_craft({
 		{'technic:stainless_steel_ingot', 'technic:mv_transformer', 'technic:stainless_steel_ingot'},
 	}
 })
+end -- homedecor-dependent (heating element)
 
 ------------------------------------------------------ scoop
 
@@ -346,6 +350,7 @@ minetest.register_tool("sauna:scoop_water", {
     description = "Sauna Scoop with Water",
     inventory_image = "sauna_scoop_water.png",
 	liquids_pointable = true,
+	groups ={not_in_creative_inventory = 1},
 	on_use = function(itemstack, user, pointed_thing)
 		if pointed_thing.type == "node" then
 			local node = minetest.get_node(pointed_thing.under)
@@ -388,6 +393,7 @@ minetest.register_tool("sauna:vasta", {
 })
 
 
+if minetest.get_modpath("farming") then
 minetest.register_craft({
 	output = 'sauna:vasta',
 	recipe = {
@@ -406,6 +412,12 @@ if minetest.get_modpath("moretrees") then
 			{'farming:cotton', '', ''},
 		}
 	})
-end
+end --- moretrees-dependent
+end -- farming-dependent
 
+minetest.register_craft({
+    type = 'fuel',
+    recipe = 'sauna:vasta',
+    burntime = 3,
+})
 

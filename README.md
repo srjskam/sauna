@@ -8,3 +8,7 @@ How does a game developed by a Finn not have sauna equipment? This mod fixes tha
 * Vasta, a traditional bundle of leaves to whip yourself with.
 
 Enjoying sauna has of course beneficial health effects. Too much is bad for you, though.
+
+![pic1](pics/pic1.jpg)
+![pic2](pics/pic2.jpg)
+
